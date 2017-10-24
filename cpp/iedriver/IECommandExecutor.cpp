@@ -71,7 +71,7 @@ LRESULT IECommandExecutor::OnCreate(UINT uMsg,
   this->PopulateElementFinderMethods();
   this->current_browser_id_ = "";
   this->serialized_response_ = "";
-  this->unexpected_alert_behavior_ = "";
+  this->unexpected_alert_behavior_ = IGNORE_UNEXPECTED_ALERTS;
   this->implicit_wait_timeout_ = 0;
   this->async_script_timeout_ = -1;
   this->page_load_timeout_ = -1;
@@ -479,7 +479,6 @@ void IECommandExecutor::DispatchCommand() {
           } else {
             LOG(DEBUG) << "Unexpected alert is detected, and the sent command is invalid when an alert is present";
             bool is_notify_unexpected_alert =
-                this->unexpected_alert_behavior_.size() == 0 ||
                 this->unexpected_alert_behavior_ == IGNORE_UNEXPECTED_ALERTS ||
                 this->unexpected_alert_behavior_ == DISMISS_AND_NOTIFY_UNEXPECTED_ALERTS ||
                 this->unexpected_alert_behavior_ == ACCEPT_AND_NOTIFY_UNEXPECTED_ALERTS;
@@ -555,8 +554,7 @@ std::string IECommandExecutor::HandleUnexpectedAlert(BrowserHandle browser,
       this->unexpected_alert_behavior_ == ACCEPT_AND_NOTIFY_UNEXPECTED_ALERTS) {
     LOG(DEBUG) << "Automatically accepting the alert";
     dialog.Accept();
-  } else if (this->unexpected_alert_behavior_.size() == 0 ||
-             this->unexpected_alert_behavior_ == DISMISS_UNEXPECTED_ALERTS ||
+  } else if (this->unexpected_alert_behavior_ == DISMISS_UNEXPECTED_ALERTS ||
              this->unexpected_alert_behavior_ == DISMISS_AND_NOTIFY_UNEXPECTED_ALERTS ||
              force_use_dismiss) {
     // If a quit command was issued, we should not ignore an unhandled

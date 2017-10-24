@@ -173,7 +173,7 @@ Json::Value NewSessionCommandHandler::ProcessLegacyCapabilities(const IECommandE
 
   IECommandExecutor& mutable_executor = const_cast<IECommandExecutor&>(executor);
 
-  Json::Value unexpected_alert_behavior = this->GetCapability(capabilities, UNHANDLED_PROMPT_BEHAVIOR_CAPABILITY, Json::stringValue, DISMISS_UNEXPECTED_ALERTS);
+  Json::Value unexpected_alert_behavior = this->GetCapability(capabilities, UNHANDLED_PROMPT_BEHAVIOR_CAPABILITY, Json::stringValue, IGNORE_UNEXPECTED_ALERTS);
   mutable_executor.set_unexpected_alert_behavior(this->GetUnexpectedAlertBehaviorValue(unexpected_alert_behavior.asString()));
 
   Json::Value page_load_strategy = this->GetCapability(capabilities, PAGE_LOAD_STRATEGY_CAPABILITY, Json::stringValue, NORMAL_PAGE_LOAD_STRATEGY);
@@ -247,7 +247,7 @@ Json::Value NewSessionCommandHandler::ProcessCapabilities(const IECommandExecuto
           if (this->MatchCapabilities(executor, merged_capabilities, &match_error)) {
             IECommandExecutor& mutable_executor = const_cast<IECommandExecutor&>(executor);
 
-            Json::Value unexpected_alert_behavior = this->GetCapability(merged_capabilities, UNHANDLED_PROMPT_BEHAVIOR_CAPABILITY, Json::stringValue, "");
+            Json::Value unexpected_alert_behavior = this->GetCapability(merged_capabilities, UNHANDLED_PROMPT_BEHAVIOR_CAPABILITY, Json::stringValue, IGNORE_UNEXPECTED_ALERTS);
             mutable_executor.set_unexpected_alert_behavior(unexpected_alert_behavior.asString());
 
             Json::Value page_load_strategy = this->GetCapability(merged_capabilities, PAGE_LOAD_STRATEGY_CAPABILITY, Json::stringValue, NORMAL_PAGE_LOAD_STRATEGY);
@@ -399,10 +399,7 @@ Json::Value NewSessionCommandHandler::CreateReturnedCapabilities(const IECommand
   capabilities[ACCEPT_INSECURE_CERTS_CAPABILITY] = false;
   capabilities[PAGE_LOAD_STRATEGY_CAPABILITY] = executor.page_load_strategy();
   capabilities[SET_WINDOW_RECT_CAPABILITY] = true;
-
-  if (executor.unexpected_alert_behavior().size() > 0) {
-    capabilities[UNHANDLED_PROMPT_BEHAVIOR_CAPABILITY] = executor.unexpected_alert_behavior();
-  }
+  capabilities[UNHANDLED_PROMPT_BEHAVIOR_CAPABILITY] = executor.unexpected_alert_behavior();
 
   Json::Value ie_options;
   ie_options[IGNORE_PROTECTED_MODE_CAPABILITY] = executor.browser_factory()->ignore_protected_mode_settings();
